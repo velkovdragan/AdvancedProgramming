@@ -1,31 +1,43 @@
 package Aud1.zad1;
 
+
+
 public class Main {
+
     public static void main(String[] args) {
-        int num = 1;
-        String name = "Test Customer";
-        float balance = 5000;
 
-        Bank b = new Bank();
+        // Create a bank with capacity for 10 accounts
+        Bank bank = new Bank(10);
 
-        Account a1 = new NonInterestCheckingAccount(name, balance);
-        Account a2 = new InterestCheckingAccount(name, balance);
-        Account a3 = new PlatinumCheckingAccount(name, balance);
+        // Create different types of accounts
+        Account acc1 = new NonInterestCheckingAccount("John", 1000);
+        Account acc2 = new InterestCheckingAccount("Alex", 2000);
+        Account acc3 = new PlatinumCheckingAccount("Sarah", 5000);
 
-        b.addAccount(a1);
-        b.addAccount(a2);
-        b.addAccount(a3);
+        // Add accounts to the bank
+        bank.addAccount(acc1);
+        bank.addAccount(acc2);
+        bank.addAccount(acc3);
 
-        System.out.println(a1);
-        System.out.println(a2);
+        // Display account information before interest
+        System.out.println("=== BEFORE INTEREST ===");
 
-        double totalAssets = b.getTotalAssets();
-        System.out.println("Total Assets: " + totalAssets);
+        System.out.println(acc1.getName() + ": " + acc1.getBalance());
+        System.out.println(acc2.getName() + ": " + acc2.getBalance());
+        System.out.println(acc3.getName() + ": " + acc3.getBalance());
 
-        b.addInterest();
+        System.out.println("Total bank assets: " + bank.totalAssets());
 
-        System.out.println(a1);
-        System.out.println(a2);
+        // Apply interest to eligible accounts
+        bank.addInterest();
 
+        // Display account information after interest
+        System.out.println("\n=== AFTER INTEREST ===");
+
+        System.out.println(acc1.getName() + ": " + acc1.getBalance());
+        System.out.println(acc2.getName() + ": " + acc2.getBalance());
+        System.out.println(acc3.getName() + ": " + acc3.getBalance());
+
+        System.out.println("Total bank assets: " + bank.totalAssets());
     }
 }

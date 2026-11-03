@@ -1,37 +1,38 @@
 package Aud1.zad1;
 
 public class Bank{
-        Account[] accounts;
-        int numAcc;
+    private Account[] accounts;
+    private int totalAccs;
+    private int max=0;
 
-        Bank(){
-            this.accounts=new Account[10];
-            numAcc=0;
+    public Bank(int max){
+        this.max=max;
+        this.totalAccs=0;
+        accounts=new Account[max];
+    }
 
+    public double totalAssets(){
+        double sum=0;
+        for (int i = 0; i < totalAccs; i++) {
+            sum += accounts[i].getBalance();
         }
-
-    public double getTotalAssets() {
-        double sum = 0;
-        for(int i = 0; i < numAcc; i++) {
-            sum += accounts[i].get_balance();
-        }
-
         return sum;
     }
-        public void addInterest(){
-            for(int i=0;i<numAcc;i++){
-                if(accounts[i] instanceof InterestBearingAccount){
-                    InterestBearingAccount iba=(InterestBearingAccount)accounts[i];
-                    iba.addInterest();
-                }
-            }
-        }
+
     public void addAccount(Account account) {
-        accounts[numAcc++] = account;
+        if (totalAccs < accounts.length && account != null) {
+            accounts[totalAccs++] = account;
+        }
     }
 
 
-
-
+    public void addInterest(){
+        for(Account account: accounts){
+            if(account instanceof InterestBearingAccount){
+                InterestBearingAccount i=(InterestBearingAccount) account;
+                i.addInterest();
+            }
+        }
+    }
 
 }

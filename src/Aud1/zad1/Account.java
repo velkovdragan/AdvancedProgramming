@@ -1,41 +1,39 @@
 package Aud1.zad1;
 
-public abstract class Account {
-
-    public static int ACC_NUMBER=1;
+public abstract class Account{
     private String name;
-    private int number;
+
     private double balance;
+    private int number;
+    static int counter=0;
 
 
     public Account(String name,double balance){
         this.name=name;
-        this.number=ACC_NUMBER++;
+
         this.balance=balance;
-    }
 
-    public double get_balance(){
-        return this.balance;
-    }
+        this.number=counter++;
 
-
-
-
-    public void deposit(double money){
-        System.out.println("Deposit: " + money +  " to account " + number);
-        this.balance+=money;
-    }
-
-    public void withdraw(double money){
-
-        if(balance>=money){
-            System.out.println("Withdrawal: " + money +  " from account " + number);
-
-            this.balance-=money;
-
-        }
 
     }
 
+    public String getName() {
+        return name;
+    }
 
+    public double getBalance() {
+        return balance;
+    }
+
+    public int getNumber() {
+        return number;
+    }
+
+    public void deposit(double amount){
+        balance+=amount;
+    }
+    public void withdraw(double amount){
+        balance-=amount;
+    }
 }
