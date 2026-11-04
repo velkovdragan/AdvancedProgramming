@@ -1,0 +1,237 @@
+Генерички типови и функционални интерфејси
+Потребно е да имплементирате едноставен систем за валидација на податоци, користејќи генерички типови, функционални интерфејси и ламбда изрази.
+
+Валидатор проверува дали одредена вредност исполнува зададен услов. Резултатот од проверката покажува дали вредноста е валидна и, доколку не е, содржи пораки за грешки. Валидаторите треба да може да се комбинираат за да се проверат повеќе услови.
+
+1. Класа ValidationResult
+Имплементирајте непроменлива (immutable) класа која го претставува резултатот од валидацијата и ги чува пораките за грешки.
+
+Потребни методи:
+
+public static ValidationResult ok() – враќа успешен резултат без грешки.
+public static ValidationResult error(String message) – враќа резултат со една грешка. Ако message е null или празен стринг, фрла IllegalArgumentException.
+public static ValidationResult of(List<String> errors) – враќа резултат со зададените грешки. Празна листа означува успешна валидација. Ако errors е null, фрла IllegalArgumentException.
+public boolean isValid() – враќа true ако нема грешки, инаку false.
+public List<String> getErrors() – ги враќа грешките по редоследот на нивното додавање; за успешен резултат враќа празна листа.
+Методот of мора да направи копија од добиената листа, така што подоцнежните промени на оригиналната листа нема да влијаат на резултатот. Листата вратена од getErrors() не смее да се менува: обид за промена треба да фрли UnsupportedOperationException.
+
+2. Интерфејс Validator<T>
+Дефинирајте генерички функционален интерфејс Validator<T>, означен со @FunctionalInterface, со еден апстрактен метод:
+
+ValidationResult validate(T value);
+Интерфејсот треба да ги содржи и следните методи:
+
+default Validator<T> and(Validator<? super T> other)
+Враќа нов валидатор кој последователно применува два валидатори врз истата вредност:
+
+Прво се извршува тековниот валидатор.
+Ако првата проверка е неуспешна, веднаш се враќа нејзиниот резултат, без да се повика other.
+Ако првата проверка е успешна, се извршува other и се враќа неговиот резултат.
+Ако other е null, се фрла IllegalArgumentException.
+
+static <T> Validator<T> notNull()
+Враќа валидатор кој при null вредност ја враќа грешката must not be null. За секоја друга вредност враќа успешен резултат.
+
+static Validator<String> minLength(int min)
+Враќа валидатор кој проверува дали стрингот има најмалку min карактери.
+
+Ако вредноста е null: must not be null.
+Ако стрингот е пократок од min: must have at least <min> characters (заменете го <min> со зададениот број).
+Инаку, валидацијата е успешна.
+Ако min < 0, се фрла IllegalArgumentException при креирање на валидаторот.
+static Validator<Integer> range(int min, int max)
+Враќа валидатор кој проверува дали бројот е во интервалот од min до max, вклучувајќи ги границите.
+
+Ако вредноста е null: must not be null.
+Ако бројот е надвор од интервалот: must be between <min> and <max> (заменете ги ознаките со зададените граници).
+Инаку, валидацијата е успешна.
+Ако min > max, се фрла IllegalArgumentException при креирање на валидаторот.
+3. Класа User
+Имплементирајте класа User со атрибути:
+
+String name
+Integer age
+String email
+Класата треба да има конструктор:
+
+public User(String name, Integer age, String email)
+и методи getName(), getAge() и getEmail().
+
+Сите атрибути може да имаат вредност null. Не вршете валидација во конструкторот: за тоа ќе биде задолжена класата UserValidation.
+
+4. Класа UserValidation
+Имплементирајте класа UserValidation со статички метод:
+
+public static ValidationResult validate(User user)
+Методот треба да ги валидира трите атрибути на корисникот според следните правила, по наведениот редослед:
+
+name – прво проверете дали не е null, а потоа дали има најмалку 3 карактери.
+age – прво проверете дали не е null, а потоа дали вредноста е во интервалот 18–120 (вклучително).
+email – прво проверете дали не е null, потоа дали има најмалку 5 карактери и на крај дали го содржи знакот @. Последната проверка треба да биде дефинирана со ламбда израз и, ако не е исполнета, да ја врати грешката must contain @.
+Напомена:
+
+За секој атрибут користете ги соодветните валидатори од Validator<T> и комбинирајте ги со методот and. Со тоа за еден атрибут ќе се пријави само првата грешка: на пример, ако email има само два карактера и нема @, треба да се пријави грешката за должината, а не и грешката за @.
+Проверете ги сите три атрибути, дури и кога некој од нив е невалиден. Соберете ги грешките по редослед name, age, email.
+Пред секоја грешка додадете го името на атрибутот и :, на пример name: must not be null или email: must contain @.
+Ако сите атрибути се валидни, вратете успешен резултат без грешки.
+Ако аргументот user е null, фрлете IllegalArgumentException.
+Исклучоци и гранични случаи
+Сите случаи во кои се фрла исклучок:
+
+Ситуација	Исклучок
+ValidationResult.error(message) — message е null или празен стринг	IllegalArgumentException
+ValidationResult.of(errors) — errors е null	IllegalArgumentException
+Обид за промена (add, remove, set, clear...) на листата од getErrors(), за секој резултат (од ok(), error(...), of(...) или добиен од валидатор)	UnsupportedOperationException
+and(other) — other е null	IllegalArgumentException
+Validator.minLength(min) — min < 0 (при креирање на валидаторот)	IllegalArgumentException
+Validator.range(min, max) — min > max (при креирање на валидаторот)	IllegalArgumentException
+UserValidation.validate(user) — user е null	IllegalArgumentException
+Во сите други случаи не се фрла исклучок:
+
+Валидирањето на null вредност (со notNull(), minLength или range) не фрла исклучок, туку враќа резултат со грешката must not be null.
+minLength(0) и range(min, max) со min == max се дозволени. Границите на range може да бидат и негативни броеви.
+Конструкторот на User не фрла исклучок (сите вредности може да бидат null). UserValidation.validate за null атрибут не фрла исклучок, туку пријавува грешка.
+Пример за користење
+Validator<String> name = Validator.<String>notNull()
+        .and(Validator.minLength(3));
+
+System.out.println(name.validate("Ana").isValid());
+System.out.println(name.validate("Al").getErrors());
+System.out.println(name.validate(null).getErrors());
+
+Validator<Integer> age = Validator.range(18, 120);
+System.out.println(age.validate(17).getErrors());
+
+ValidationResult result = UserValidation.validate(
+        new User("Al", 17, "al")
+);
+
+System.out.println(result.isValid());
+System.out.println(result.getErrors());
+Очекуван излез:
+
+true
+[must have at least 3 characters]
+[must not be null]
+[must be between 18 and 120]
+false
+[name: must have at least 3 characters, age: must be between 18 and 120, email: must have at least 5 characters]
+Generics and Functional Interfaces
+
+Implement a simple data validation system using generics, functional interfaces, and lambda expressions.
+
+A validator checks whether a value satisfies a particular condition. The validation result indicates whether the value is valid and, if it is not, contains error messages. Validators should be combinable to check multiple conditions.
+
+1. Class ValidationResult
+Implement an immutable class representing a validation result and storing its error messages.
+
+Required methods:
+
+public static ValidationResult ok() – returns a successful result with no errors.
+public static ValidationResult error(String message) – returns a result containing one error. If message is null or an empty string, throw IllegalArgumentException.
+public static ValidationResult of(List<String> errors) – returns a result containing the specified errors. An empty list means successful validation. If errors is null, throw IllegalArgumentException.
+public boolean isValid() – returns true if there are no errors, otherwise false.
+public List<String> getErrors() – returns the errors in the order they were added; returns an empty list for successful validation.
+The of method must copy the supplied list so that later changes to the original list do not affect the result. The list returned by getErrors() must be unmodifiable: attempting to modify it must throw UnsupportedOperationException.
+
+2. Interface Validator<T>
+Define a generic functional interface Validator<T>, annotated with @FunctionalInterface, with one abstract method:
+
+ValidationResult validate(T value);
+The interface must also provide the following methods:
+
+default Validator<T> and(Validator<? super T> other)
+Returns a new validator that applies two validators to the same value in sequence:
+
+First, execute the current validator.
+If the first validation fails, return its result immediately without calling other.
+If the first validation succeeds, execute other and return its result.
+If other is null, throw IllegalArgumentException.
+
+static <T> Validator<T> notNull()
+Returns a validator that produces the error must not be null for a null value. Any non-null value is valid.
+
+static Validator<String> minLength(int min)
+Returns a validator that checks whether a string has at least min characters.
+
+If the value is null: must not be null.
+If the string is shorter than min: must have at least <min> characters (replace <min> with the actual minimum).
+Otherwise, validation succeeds.
+If min < 0, throw IllegalArgumentException when the validator is created.
+static Validator<Integer> range(int min, int max)
+Returns a validator that checks whether an integer is between min and max, including both bounds.
+
+If the value is null: must not be null.
+If it is outside the interval: must be between <min> and <max> (replace the placeholders with the actual bounds).
+Otherwise, validation succeeds.
+If min > max, throw IllegalArgumentException when the validator is created.
+3. Class User
+Implement a User class with these fields:
+
+String name
+Integer age
+String email
+Provide the constructor:
+
+public User(String name, Integer age, String email)
+and the methods getName(), getAge(), and getEmail().
+
+All fields may contain null values. Do not validate values in the constructor: the UserValidation class will handle validation.
+
+4. Class UserValidation
+Implement a UserValidation class with the following static method:
+
+public static ValidationResult validate(User user)
+The method must validate the user's three fields according to the following rules, in the specified order:
+
+name – first check that it is not null, then that it contains at least 3 characters.
+age – first check that it is not null, then that it is between 18 and 120 (inclusive).
+email – first check that it is not null, then that it contains at least 5 characters, and finally that it contains the @ character. Define the last check using a lambda expression; when it fails, return the error must contain @.
+Note:
+
+Use the appropriate validators from Validator<T> for each field and combine them with and. This ensures that only the first error for each field is reported. For example, if email has only two characters and does not contain @, report the length error, not the @ error as well.
+Validate all three fields, even if an earlier field is invalid. Collect their errors in the order name, age, email.
+Prefix every error with the field name followed by :, for example name: must not be null or email: must contain @.
+If all fields are valid, return a successful result without errors.
+If user is null, throw IllegalArgumentException.
+Exceptions and Edge Cases
+All cases that throw an exception, in one place:
+
+Situation	Exception
+ValidationResult.error(message) — message is null or an empty string	IllegalArgumentException
+ValidationResult.of(errors) — errors is null	IllegalArgumentException
+Trying to modify (add, remove, set, clear...) the list returned by getErrors(), for every result (from ok(), error(...), of(...), or returned by a validator)	UnsupportedOperationException
+and(other) — other is null	IllegalArgumentException
+Validator.minLength(min) — min < 0 (when the validator is created)	IllegalArgumentException
+Validator.range(min, max) — min > max (when the validator is created)	IllegalArgumentException
+UserValidation.validate(user) — user is null	IllegalArgumentException
+In all other cases no exception is thrown:
+
+Validating a null value (with notNull(), minLength or range) does not throw; it returns a result with the error must not be null.
+minLength(0) and range(min, max) with min == max are allowed. The bounds of range may also be negative numbers.
+The User constructor does not throw (all values may be null). UserValidation.validate does not throw for a null field; it reports an error.
+Usage Example
+Validator<String> name = Validator.<String>notNull()
+        .and(Validator.minLength(3));
+
+System.out.println(name.validate("Ana").isValid());
+System.out.println(name.validate("Al").getErrors());
+System.out.println(name.validate(null).getErrors());
+
+Validator<Integer> age = Validator.range(18, 120);
+System.out.println(age.validate(17).getErrors());
+
+ValidationResult result = UserValidation.validate(
+        new User("Al", 17, "al")
+);
+
+System.out.println(result.isValid());
+System.out.println(result.getErrors());
+Expected output:
+
+true
+[must have at least 3 characters]
+[must not be null]
+[must be between 18 and 120]
+false
+[name: must have at least 3 characters, age: must be between 18 and 120, email: must have at lea

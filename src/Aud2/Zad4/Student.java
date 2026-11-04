@@ -1,29 +1,24 @@
 package Aud2.Zad4;
 
-public class Student {
-    final String index;
-    String name;
-    int grade;
-    int attendance;
+public class Student{
+    private final String index;
+    private String name;
+    private int grade;
+    private int attendance;
 
     public Student(String index, String name, int grade, int attendance) {
         this.index = index;
         this.name = name;
-        this.grade = grade;
+        setGrade(grade);
         this.attendance = attendance;
+    }
+
+    public String getIndex() {
+        return index;
     }
 
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String toString() {
-        return name + " (" + index + "), grade=" + grade + ", attendance=" + attendance + "%";
     }
 
     public int getGrade() {
@@ -34,12 +29,23 @@ public class Student {
         return attendance;
     }
 
+    @Override
+    public String toString() {
+        return "Student{" +
+                "index='" + index + '\'' +
+                ", name='" + name + '\'' +
+                ", grade=" + grade +
+                ", attendance=" + attendance +
+                '}';
+    }
+
     public void setGrade(int grade) {
-        if (grade > 10) {
-            grade = 10;
+        if(grade<5){
+               grade=5;
         }
-        if (grade < 5) {
-            grade = 5;
+
+        if(grade>10){
+            grade=10;
         }
         this.grade = grade;
     }

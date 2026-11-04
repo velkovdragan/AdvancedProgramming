@@ -1,7 +1,7 @@
 package Aud2.Zad1;
 
 interface Operation{
-    int apply(int a,int b);
+    public int apply(int a,int b);
 }
 
 class Addition implements Operation{
@@ -11,14 +11,17 @@ class Addition implements Operation{
     }
 }
 
+
 interface MessageProvider{
-    String getMessage();
+    public String getMessage();
 }
-class StaticMessage implements MessageProvider {
+
+class StaticMessage implements MessageProvider{
     @Override
-    public String getMessage() {
-        return "Hello from a regular class!";
+    public String getMessage(){
+        return("Hello");
     }
+
 }
 public class InterfaceDemo {
     public static void main(String[] args) {

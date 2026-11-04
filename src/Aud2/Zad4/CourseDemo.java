@@ -63,5 +63,15 @@ public class CourseDemo {
                 s -> s.getAttendance()>=90,
                 s -> s.setGrade(s.getGrade()+1)
         );
+        se.forEach(printer);
+
+        // --- Map every student to a text label ---
+        System.out.println("\n=== Labels ===");
+        String[] labels = se.mapToLabels(s -> s.getName() + " -> " + s.getGrade());
+        for (String label : labels) System.out.println(label);
+
+        // --- Whole course via toString ---
+        System.out.println("\n=== Course ===");
+        System.out.println(se);
     }
 }
