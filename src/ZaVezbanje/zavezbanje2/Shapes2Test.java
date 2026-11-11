@@ -1,4 +1,4 @@
-package ZaVezbanje.second;
+package ZaVezbanje.zavezbanje2;
 
 import java.io.InputStream;
 import java.io.OutputStream;

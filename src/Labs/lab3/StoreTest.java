@@ -291,7 +291,7 @@ class Store{
         List<Product>filtered=products.stream()
                 .filter(p->p.getCategory().equals(category))
                 .sorted(new NameComparator())
-                .toList();
+                .collect(Collectors.toList());
 
 
         if(filtered.isEmpty()){
@@ -341,10 +341,10 @@ class Store{
         double average=sum/total;
         Product expensive=Collections.max(products);
         Product cheapest=Collections.min(products);
-        out.println("Total: " + total + "(physical: " + physical + ", digital: " + digital);
-        out.println("Cheapest " + cheapest);
-        out.println("Most expensive " + expensive);
-        out.println("Average price: " + average);
+        out.println("Total: " + total + " (physical: " + physical + ", digital: " + digital + ")");
+        out.println("Cheapest: " + cheapest);
+        out.println("Most expensive: " + expensive);
+        out.printf("Average price: %.2f%n", average);
 
         out.flush();
 
