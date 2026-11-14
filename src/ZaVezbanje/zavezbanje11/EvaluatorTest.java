@@ -1,47 +1,43 @@
 package ZaVezbanje.zavezbanje11;
 
+
 import com.sun.source.tree.CaseTree;
 
-import java.lang.classfile.instruction.TableSwitchInstruction;
-import java.time.chrono.ThaiBuddhistChronology;
 import java.util.Arrays;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
 interface IEvaluator<T extends Comparable<T>>{
-
     boolean evaluate (T a, T b);
 }
 
 class EvaluatorBuilder{
+    static <T extends Comparable<T>> IEvaluator<T> build (String operator){
+        return (a,b)->{
+            switch (operator){
+                case ">":
+                    return a.compareTo(b)>0;
 
-    public static <T extends Comparable<T>> IEvaluator<T> build (String operator){
-        switch (operator){
-            case ">":
-                return(a,b)->a.compareTo(b)>0;
+                case "==":
+                    return a.compareTo(b)==0;
+                case "<":
+                    return a.compareTo(b)<0;
+                case "!=":
+                    return a.compareTo(b)!=0;
 
-            case "<":
-                return (a,b)->a.compareTo(b)<0;
+                default:
+                    throw new IllegalArgumentException("Invalid operator");
+            }
 
-            case "==":
-                return (a,b)->a.compareTo(b)==0;
-
-            case "!=":
-                return (a,b)->a.compareTo(b)!=0;
-
-            default:
-                throw new IllegalArgumentException("Invalid operator");
-        }
-
+        };
     }
 }
 
 class Evaluator{
+    static <T extends Comparable<T>> boolean  evaluateExpression(T left, T right, String operator){
+         IEvaluator<T> evaluator=EvaluatorBuilder.build(operator);
+         return evaluator.evaluate(left,right);
 
-    public static <T extends Comparable<T>> boolean evaluateExpression(T left, T right, String operator) {
-
-        IEvaluator<T>evaluator=EvaluatorBuilder.build(operator);
-        return evaluator.evaluate(left,right);
     }
 }
 public class EvaluatorTest {
